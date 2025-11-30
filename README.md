@@ -38,9 +38,9 @@ clang++ main.cpp -o CarRace -std=c++17 -xc++ --stdlib=libc++ \
 ```
 
 ## Interakcja z programem
-* ** Sterowanie kamerą: strzałki, przyciski O/P (przyblizanie/oddalanie)
-* **Dwa rodzaje kamery: widok z gory (sterowalny), widok ruchomy zza samochodu - zmiana trybu kamery za pomocą klawisza C
-* ** Sterowanie pojazdem: klawisze W/S (jazda w przod/tyl), Q - nitro
+*  Sterowanie kamerą: strzałki, przyciski O/P (przyblizanie/oddalanie)
+* Dwa rodzaje kamery: widok z gory (sterowalny), widok ruchomy zza samochodu - zmiana trybu kamery za pomocą klawisza C
+* Sterowanie pojazdem: klawisze W/S (jazda w przod/tyl), Q - nitro
 
 ## Prezentacja gry
-* **  Link do filmiku przedstawiajacego gre:https://drive.google.com/file/d/1D5IslLVTD3ksAeZBsXGbh9-RISnK7tNh/view?usp=share_link
+* **  Link do filmiku przedstawiajacego gre: https://drive.google.com/file/d/1D5IslLVTD3ksAeZBsXGbh9-RISnK7tNh/view?usp=share_link
