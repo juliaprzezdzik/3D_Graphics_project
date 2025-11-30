@@ -43,4 +43,4 @@ clang++ main.cpp -o CarRace -std=c++17 -xc++ --stdlib=libc++ \
 * Sterowanie pojazdem: klawisze W/S (jazda w przod/tyl), Q - nitro
 
 ## Prezentacja gry
-* **  Link do filmiku przedstawiajacego gre: https://drive.google.com/file/d/1D5IslLVTD3ksAeZBsXGbh9-RISnK7tNh/view?usp=share_link
+* Link do filmiku przedstawiajacego gre: https://drive.google.com/file/d/1D5IslLVTD3ksAeZBsXGbh9-RISnK7tNh/view?usp=share_link
