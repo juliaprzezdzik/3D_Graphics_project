@@ -201,17 +201,17 @@ static void drawSky(float size = 50.0f)
     }
 
     glBegin(GL_QUADS);
-    
+
     glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
     glTexCoord2f(1, 0); glVertex3f(size, -size, -size);
     glTexCoord2f(1, 1); glVertex3f(size, size, -size);
     glTexCoord2f(0, 1); glVertex3f(-size, size, -size);
-    
+   
     glTexCoord2f(0, 0); glVertex3f(-size, -size, size);
     glTexCoord2f(1, 0); glVertex3f(size, -size, size);
     glTexCoord2f(1, 1); glVertex3f(size, size, size);
     glTexCoord2f(0, 1); glVertex3f(-size, size, size);
-    
+   
     glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
     glTexCoord2f(1, 0); glVertex3f(-size, -size, size);
     glTexCoord2f(1, 1); glVertex3f(-size, size, size);
@@ -363,47 +363,51 @@ static void drawBox(float sx, float sy, float sz) {
 
 static void updateCarMovement(float dt)
 {
+    
+    const float FINISH_LINE = 800.0f;
     if (G.gameStarted) {
         G.carPos += G.carSpeed * dt;
     }
     G.carSpeed *= 0.95f;
-    
-    if (G.carPos > 450.0f && G.carFinishPlace == 0) {
+
+    if (G.carPos >= FINISH_LINE && G.carFinishPlace == 0) {
         G.finishOrder++;
         G.carFinishPlace = G.finishOrder;
         std::cout << "Red car finished in place: " << G.carFinishPlace << "\n";
     }
     
-    if (G.carPos > 450.0f) {
-        G.carPos = 450.0f;
+    if (G.carPos > FINISH_LINE) {
+        G.carPos = FINISH_LINE;
         G.carSpeed = 0.0f;
     }
     if (G.carPos < -45.0f) G.carPos = -45.0f;
+    
 
     if (G.gameStarted) {
+     
         G.car2Pos += G.car2Speed * dt;
-        
-        if (G.car2Pos > 450.0f && G.car2FinishPlace == 0) {
+    
+        if (G.car2Pos >= FINISH_LINE && G.car2FinishPlace == 0) {
             G.finishOrder++;
             G.car2FinishPlace = G.finishOrder;
             std::cout << "Black car finished in place: " << G.car2FinishPlace << "\n";
         }
         
-        if (G.car2Pos > 450.0f) {
-            G.car2Pos = 450.0f;
+        if (G.car2Pos > FINISH_LINE) {
+            G.car2Pos = FINISH_LINE;
             G.car2Speed = 0.0f;
         }
         
         G.car3Pos += G.car3Speed * dt;
         
-        if (G.car3Pos > 450.0f && G.car3FinishPlace == 0) {
+        if (G.car3Pos >= FINISH_LINE && G.car3FinishPlace == 0) {
             G.finishOrder++;
             G.car3FinishPlace = G.finishOrder;
             std::cout << "Green car finished in place: " << G.car3FinishPlace << "\n";
         }
         
-        if (G.car3Pos > 450.0f) {
-            G.car3Pos = 450.0f;
+        if (G.car3Pos > FINISH_LINE) {
+            G.car3Pos = FINISH_LINE;
             G.car3Speed = 0.0f;
         }
     }
@@ -416,7 +420,6 @@ static void updateCarMovement(float dt)
         spawnDustParticles(1.0f, G.car3Pos, G.car3Speed);
     }
 }
-
 static void sceneCar()
 {
     glUseProgram(shaderProgram);
@@ -425,8 +428,8 @@ static void sceneCar()
        GLint lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
        GLint shininessLoc = glGetUniformLocation(shaderProgram, "shininess");
        
-       glUniform3f(lightPosLoc, 50.0f, 80.0f, 30.0f);  
-       glUniform3f(lightColorLoc, 1.0f, 0.95f, 0.8f);  
+       glUniform3f(lightPosLoc, 50.0f, 80.0f, 30.0f);
+       glUniform3f(lightColorLoc, 1.0f, 0.95f, 0.8f);
        glUniform1f(shininessLoc, 128.0f);
     
     glPushMatrix();
@@ -595,13 +598,13 @@ static void drawRoad() {
     glBegin(GL_QUADS);
     glVertex3f(-4.5f, 0.005f, -50.0f);
     glVertex3f(2.5f, 0.005f, -50.0f);
-    glVertex3f(2.5f, 0.005f, 700.0f);
-    glVertex3f(-4.5f, 0.005f, 700.0f);
+    glVertex3f(2.5f, 0.005f, 1200.0f);
+    glVertex3f(-4.5f, 0.005f, 1200.0f);
     glEnd();
     
     glColor3f(1.0f, 1.0f, 1.0f);
     glLineWidth(3.0f);
-    for (float z = -50.0f; z < 700.0f; z += 8.0f) {
+    for (float z = -50.0f; z < 1200.0f; z += 8.0f) {
         glBegin(GL_LINES);
         glVertex3f(-1.0f, 0.01f, z);
         glVertex3f(-1.0f, 0.01f, z + 4.0f);
@@ -612,9 +615,9 @@ static void drawRoad() {
     glLineWidth(4.0f);
     glBegin(GL_LINES);
     glVertex3f(-4.3f, 0.01f, -50.0f);
-    glVertex3f(-4.3f, 0.01f, 700.0f);
+    glVertex3f(-4.3f, 0.01f, 1200.0f);
     glVertex3f(2.3f, 0.01f, -50.0f);
-    glVertex3f(2.3f, 0.01f, 700.0f);
+    glVertex3f(2.3f, 0.01f, 1200.0f);
     glEnd();
     
     glEnable(GL_LIGHTING);
@@ -687,7 +690,7 @@ static void drawSceneObjects() {
         glPopMatrix();
     }
     
-    drawFinishLine(450.0f);
+    drawFinishLine(800.0f);
     
     glPushMatrix();
     glTranslatef(-4.5f, 0.0f, -40.0f);
@@ -730,7 +733,7 @@ static void drawScene(float dt) {
         glRotatef(G.rotY, 0, 1, 0);
     }
 
-    drawGround(800.0f);
+    drawGround(1300.0f);
     drawRoad();
     
     glPushMatrix();
@@ -905,13 +908,13 @@ int main() {
             win.popGLStates();
         }
         
-        if (G.gameStarted && !(G.carPos >= 450.0f && G.car2Pos >= 450.0f && G.car3Pos >= 450.0f)) {
+        if (G.gameStarted && !(G.carPos >= 800.0f && G.car2Pos >= 800.0f && G.car3Pos >= 800.0f)) {
             win.pushGLStates();
             win.draw(controlsText);
             win.popGLStates();
         }
         
-        if (G.gameStarted && G.carPos >= 450.0f && G.car2Pos >= 450.0f && G.car3Pos >= 450.0f) {
+        if (G.gameStarted && G.carPos >= 800.0f && G.car2Pos >= 800.0f && G.car3Pos >= 800.0f) {
             sf::Text winText(font, "", 60);
             winText.setFillColor(sf::Color::Yellow);
             winText.setPosition({250.f, 250.f});
