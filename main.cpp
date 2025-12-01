@@ -714,6 +714,7 @@ int main() {
                 case sf::Keyboard::Key::Space:
                     if (!G.gameStarted) {
                         G.gameStarted = true;
+                        G.chaseCam = !G.chaseCam;
                         std::cout << "START: Wyscig Rozpoczety!\n";
                     }
                     break;
