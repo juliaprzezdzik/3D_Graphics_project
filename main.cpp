@@ -8,8 +8,61 @@
 #include <optional>
 #include <vector>
 #include <algorithm>
+#include <fstream>
+#include <sstream>
 
 #define PI 3.14159265358979323846f
+
+GLuint shaderProgram = 0;
+
+std::string loadShaderSource(const std::string& filename) {
+    std::ifstream file(filename);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+GLuint compileShader(GLenum type, const std::string& source) {
+    GLuint shader = glCreateShader(type);
+    const char* src = source.c_str();
+    glShaderSource(shader, 1, &src, NULL);
+    glCompileShader(shader);
+    
+    GLint success;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        std::cout << "Shader error: " << infoLog << std::endl;
+    }
+    return shader;
+}
+
+void initShaders() {
+    std::string vertexCode = loadShaderSource("phong.vert");
+    std::string fragmentCode = loadShaderSource("phong.frag");
+    
+    GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexCode);
+    GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentCode);
+    
+    shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+    
+    GLint success;
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cout << "Linking error: " << infoLog << std::endl;
+    }
+    
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+    
+    std::cout << "✓ Phong shaders loaded!\n";
+}
 
 bool colorMaterialEnabled = true;
 struct Particle {
@@ -327,6 +380,16 @@ static void updateCarMovement(float dt)
 
 static void sceneCar()
 {
+    glUseProgram(shaderProgram);
+    
+    GLint lightPosLoc = glGetUniformLocation(shaderProgram, "lightPosition");
+       GLint lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
+       GLint shininessLoc = glGetUniformLocation(shaderProgram, "shininess");
+       
+       glUniform3f(lightPosLoc, 50.0f, 80.0f, 30.0f);  // Pozycja słońca
+       glUniform3f(lightColorLoc, 1.0f, 0.95f, 0.8f);  // Ciepłe światło
+       glUniform1f(shininessLoc, 128.0f);
+    
     glPushMatrix();
 
     glColor3f(0.8f, 0.0f, 0.0f);
@@ -355,12 +418,24 @@ static void sceneCar()
     drawOneWheel(+wheelX, -wheelZ);
     drawOneWheel(-wheelX, +wheelZ);
     drawOneWheel(-wheelX, -wheelZ);
+    
+    glUseProgram(0);
 
     glPopMatrix();
 }
 
 static void carMoving()
 {
+    glUseProgram(shaderProgram);
+
+        GLint lightPosLoc = glGetUniformLocation(shaderProgram, "lightPosition");
+        GLint lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
+        GLint shininessLoc = glGetUniformLocation(shaderProgram, "shininess");
+        
+        glUniform3f(lightPosLoc, 50.0f, 80.0f, 30.0f);
+        glUniform3f(lightColorLoc, 1.0f, 0.95f, 0.8f);
+        glUniform1f(shininessLoc, 64.0f);
+    
     glPushMatrix();
 
     glColor3f(0.0f, 0.0f, 0.0f);
@@ -647,6 +722,8 @@ int main() {
     setupProjection(win.getSize());
     initQuadric();
     initParticles();
+    
+    initShaders();
     
     sf::Font font;
     if (!font.openFromFile("/System/Library/Fonts/Supplemental/Arial.ttf")) {
