@@ -201,27 +201,27 @@ static void drawSky(float size = 50.0f)
     }
 
     glBegin(GL_QUADS);
-    // Front
+    
     glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
     glTexCoord2f(1, 0); glVertex3f(size, -size, -size);
     glTexCoord2f(1, 1); glVertex3f(size, size, -size);
     glTexCoord2f(0, 1); glVertex3f(-size, size, -size);
-    // Back
+    
     glTexCoord2f(0, 0); glVertex3f(-size, -size, size);
     glTexCoord2f(1, 0); glVertex3f(size, -size, size);
     glTexCoord2f(1, 1); glVertex3f(size, size, size);
     glTexCoord2f(0, 1); glVertex3f(-size, size, size);
-    // Left
+    
     glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
     glTexCoord2f(1, 0); glVertex3f(-size, -size, size);
     glTexCoord2f(1, 1); glVertex3f(-size, size, size);
     glTexCoord2f(0, 1); glVertex3f(-size, size, -size);
-    // Right
+    
     glTexCoord2f(0, 0); glVertex3f(size, -size, -size);
     glTexCoord2f(1, 0); glVertex3f(size, -size, size);
     glTexCoord2f(1, 1); glVertex3f(size, size, size);
     glTexCoord2f(0, 1); glVertex3f(size, size, -size);
-    // Top
+    
     glTexCoord2f(0, 0); glVertex3f(-size, size, -size);
     glTexCoord2f(1, 0); glVertex3f(size, size, -size);
     glTexCoord2f(1, 1); glVertex3f(size, size, size);
@@ -425,8 +425,8 @@ static void sceneCar()
        GLint lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
        GLint shininessLoc = glGetUniformLocation(shaderProgram, "shininess");
        
-       glUniform3f(lightPosLoc, 50.0f, 80.0f, 30.0f);  // Pozycja słońca
-       glUniform3f(lightColorLoc, 1.0f, 0.95f, 0.8f);  // Ciepłe światło
+       glUniform3f(lightPosLoc, 50.0f, 80.0f, 30.0f);  
+       glUniform3f(lightColorLoc, 1.0f, 0.95f, 0.8f);  
        glUniform1f(shininessLoc, 128.0f);
     
     glPushMatrix();
@@ -933,7 +933,6 @@ int main() {
             rankingText.setFillColor(sf::Color::White);
             rankingText.setPosition({300.f, 350.f});
             
-            // Użyj zapisanych miejsc zamiast pozycji
             std::vector<std::pair<std::string, int>> results = {
                 {"Red Car (YOU)", G.carFinishPlace},
                 {"Black Car", G.car2FinishPlace},
