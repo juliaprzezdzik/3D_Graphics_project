@@ -149,6 +149,8 @@ namespace {
         float wheelAngle = 0.0f;
         float car2Pos = 0.0f;
         float car2Speed = 35.0f;
+        float car3Pos = 0.0f;
+        float car3Speed = 45.0f;
         float rotX = 0.f;
         float rotY = -25.f;
         bool brokenNoPushPop = false;
@@ -160,6 +162,11 @@ namespace {
         float fovDeg = 60.0f;
         float nearP = 0.1f, farP = 300.0f;
         bool gameStarted = false;
+        
+        int finishOrder = 0;
+        int carFinishPlace = 0;
+        int car2FinishPlace = 0;
+        int car3FinishPlace = 0;
     } G;
 
     float deg2rad(float d) { return d * PI / 180.f; }
@@ -356,8 +363,16 @@ static void drawBox(float sx, float sy, float sz) {
 
 static void updateCarMovement(float dt)
 {
-    G.carPos += G.carSpeed * dt;
+    if (G.gameStarted) {
+        G.carPos += G.carSpeed * dt;
+    }
     G.carSpeed *= 0.95f;
+    
+    if (G.carPos > 450.0f && G.carFinishPlace == 0) {
+        G.finishOrder++;
+        G.carFinishPlace = G.finishOrder;
+        std::cout << "Red car finished in place: " << G.carFinishPlace << "\n";
+    }
     
     if (G.carPos > 450.0f) {
         G.carPos = 450.0f;
@@ -367,15 +382,39 @@ static void updateCarMovement(float dt)
 
     if (G.gameStarted) {
         G.car2Pos += G.car2Speed * dt;
+        
+        if (G.car2Pos > 450.0f && G.car2FinishPlace == 0) {
+            G.finishOrder++;
+            G.car2FinishPlace = G.finishOrder;
+            std::cout << "Black car finished in place: " << G.car2FinishPlace << "\n";
+        }
+        
         if (G.car2Pos > 450.0f) {
             G.car2Pos = 450.0f;
             G.car2Speed = 0.0f;
         }
+        
+        G.car3Pos += G.car3Speed * dt;
+        
+        if (G.car3Pos > 450.0f && G.car3FinishPlace == 0) {
+            G.finishOrder++;
+            G.car3FinishPlace = G.finishOrder;
+            std::cout << "Green car finished in place: " << G.car3FinishPlace << "\n";
+        }
+        
+        if (G.car3Pos > 450.0f) {
+            G.car3Pos = 450.0f;
+            G.car3Speed = 0.0f;
+        }
     }
 
     updateParticles(dt);
-    spawnDustParticles(-1.0f, G.carPos, G.carSpeed);
-    spawnDustParticles(-3.0f, G.car2Pos, G.car2Speed);
+    
+    if (G.gameStarted) {
+        spawnDustParticles(-1.0f, G.carPos, G.carSpeed);
+        spawnDustParticles(-3.0f, G.car2Pos, G.car2Speed);
+        spawnDustParticles(1.0f, G.car3Pos, G.car3Speed);
+    }
 }
 
 static void sceneCar()
@@ -670,7 +709,6 @@ static void drawSceneObjects() {
     drawStartPole(3.0f);
     glPopMatrix();
 }
-
 static void drawScene(float dt) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -693,10 +731,7 @@ static void drawScene(float dt) {
     }
 
     drawGround(800.0f);
-    
     drawRoad();
-    drawSceneObjects();
-    drawParticles(gQuad);
     
     glPushMatrix();
     glTranslatef(-1.0f, 0.01f, G.carPos);
@@ -704,11 +739,59 @@ static void drawScene(float dt) {
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-3.0f, 0.0f, G.car2Pos);
+    glTranslatef(-3.0f, 0.01f, G.car2Pos);
     carMoving();
     glPopMatrix();
-}
 
+
+    glPushMatrix();
+    glTranslatef(1.0f, 0.01f, G.car3Pos);
+    glUseProgram(shaderProgram);
+
+    GLint lightPosLoc = glGetUniformLocation(shaderProgram, "lightPosition");
+    GLint lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
+    GLint shininessLoc = glGetUniformLocation(shaderProgram, "shininess");
+
+    glUniform3f(lightPosLoc, 50.0f, 80.0f, 30.0f);
+    glUniform3f(lightColorLoc, 1.0f, 0.95f, 0.8f);
+    glUniform1f(shininessLoc, 96.0f);
+
+    glColor3f(0.0f, 0.8f, 0.0f);
+    setMaterial(96);
+
+    drawBox(1.0f, 0.3f, 0.7f);
+
+    glPushMatrix();
+    glTranslatef(0.06f, 0.3f, 0.0f);
+    drawBox(0.6f, 0.35f, 0.6f);
+    glPopMatrix();
+
+    const float wheelX = 0.5f;
+    const float wheelZ = 0.4f;
+    const float wheelY = -0.10f;
+
+    auto drawOneWheel = [&](float x, float z) {
+        glPushMatrix();
+        glTranslatef(x, wheelY, z);
+        glRotatef(G.wheelAngle, 0, 0, 1);
+        drawWheel();
+        glPopMatrix();
+    };
+
+    drawOneWheel(+wheelX, +wheelZ);
+    drawOneWheel(+wheelX, -wheelZ);
+    drawOneWheel(-wheelX, +wheelZ);
+    drawOneWheel(-wheelX, -wheelZ);
+
+    glUseProgram(0);
+    glPopMatrix();
+    
+
+    drawSceneObjects();
+    
+
+    drawParticles(gQuad);
+}
 
 int main() {
     sf::RenderWindow win(sf::VideoMode({1024, 768}), "3D car race");
@@ -822,16 +905,22 @@ int main() {
             win.popGLStates();
         }
         
-        if (G.gameStarted && (G.carPos >= 150.0f || G.car2Pos >= 150.0f)) {
+        if (G.gameStarted && !(G.carPos >= 450.0f && G.car2Pos >= 450.0f && G.car3Pos >= 450.0f)) {
+            win.pushGLStates();
+            win.draw(controlsText);
+            win.popGLStates();
+        }
+        
+        if (G.gameStarted && G.carPos >= 450.0f && G.car2Pos >= 450.0f && G.car3Pos >= 450.0f) {
             sf::Text winText(font, "", 60);
             winText.setFillColor(sf::Color::Yellow);
-            winText.setPosition({250.f, 300.f});
-            
-            if (G.carPos >= 450.0f && G.car2Pos < 450.0f) {
+            winText.setPosition({250.f, 250.f});
+
+            if (G.carFinishPlace == 1) {
                 winText.setString("YOU WIN!");
                 winText.setFillColor(sf::Color::Red);
             }
-            else if (G.car2Pos >= 450.0f && G.carPos < 450.0f) {
+            else {
                 winText.setString("YOU LOSE!");
                 winText.setFillColor(sf::Color::White);
             }
@@ -839,11 +928,30 @@ int main() {
             win.pushGLStates();
             win.draw(winText);
             win.popGLStates();
-        }
-        
-        if (G.gameStarted) {
+            
+            sf::Text rankingText(font, "", 30);
+            rankingText.setFillColor(sf::Color::White);
+            rankingText.setPosition({300.f, 350.f});
+            
+            // Użyj zapisanych miejsc zamiast pozycji
+            std::vector<std::pair<std::string, int>> results = {
+                {"Red Car (YOU)", G.carFinishPlace},
+                {"Black Car", G.car2FinishPlace},
+                {"Green Car", G.car3FinishPlace}
+            };
+            
+            std::sort(results.begin(), results.end(),
+                [](const auto& a, const auto& b) { return a.second < b.second; });
+            
+            std::string ranking = "FINAL RESULTS:\n\n";
+            ranking += "1st: " + results[0].first + "\n";
+            ranking += "2nd: " + results[1].first + "\n";
+            ranking += "3rd: " + results[2].first;
+            
+            rankingText.setString(ranking);
+            
             win.pushGLStates();
-            win.draw(controlsText);
+            win.draw(rankingText);
             win.popGLStates();
         }
 
