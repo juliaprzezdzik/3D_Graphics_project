@@ -657,6 +657,10 @@ int main() {
     startText.setFillColor(sf::Color::White);
     startText.setPosition({300.f, 50.f});
     
+    sf::Text controlsText(font, "W - Forward  |  S - Backward  |  Q - Nitro", 20);
+    controlsText.setFillColor(sf::Color::White);
+    controlsText.setPosition({10.f, 720.f});
+    
     sf::Image img;
     if (!img.loadFromFile("sky.jpg")) {
         std::cout << "Nie można wczytać tekstury nieba!\n";
@@ -711,12 +715,13 @@ int main() {
                     G.eye.x *= 0.95f;
                     G.eye.z *= 0.95f;
                     break;
-                case sf::Keyboard::Key::Space:
-                    if (!G.gameStarted) {
-                        G.gameStarted = true;
-                        G.chaseCam = !G.chaseCam;
-                        std::cout << "START: Wyscig Rozpoczety!\n";
-                    }
+                    case sf::Keyboard::Key::Space:
+                        if (!G.gameStarted) {
+                            G.gameStarted = true;
+                            G.chaseCam = true;
+                            std::cout << "START: Race started!\n";
+                        }
+                        break;
                     break;
                 case sf::Keyboard::Key::PageDown:
                 case sf::Keyboard::Key::O:
@@ -759,6 +764,12 @@ int main() {
             win.popGLStates();
         }
         
+        if (G.gameStarted) {
+            win.pushGLStates();
+            win.draw(controlsText);
+            win.popGLStates();
+        }
+
         
         win.display();
 
